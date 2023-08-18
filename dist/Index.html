@@ -9,16 +9,16 @@
 </head>
 <body>
     <div class="canvas-container">
-        <canvas class="mycanvas heightmap" height="300" width="500"></canvas>
-        <canvas class="mycanvas moisturemap" height="300" width="500"></canvas>
+        <canvas class="mycanvas heightmap" height="800" width="1800"></canvas>
+        <canvas class="mycanvas moisturemap" height="800" width="1800"></canvas>
+        <canvas class="mycanvas gradient" height="800" width="1800"></canvas>
     </div>
     <div class="controls">
         <button class="generate">generate</button>
-        <!-- <input type="range" name="freq" id="frequency"> Frequency</input>
-        <input type="range" name="thresh" id="threshold">Threshold</input> -->
         <button class="togglemoist">Toggle Moisture overlay</button>
-        <button class="download">Download Map</button>
+        <button class="togglegradient">Toggle Gradient overlay</button>
     </div>
+    
     <p id="map-type"></p>
     <script src="bundle.js"></script>
 </body>
