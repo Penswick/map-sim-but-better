@@ -1,6 +1,7 @@
 import { createNoise2D } from 'simplex-noise';
 import { generateMoistureMap, getMoistureValue } from './Layers/Moisturemap.js';
 
+
 let noise2D = createNoise2D(Math.random);
 
 const heightmapCanvas = document.querySelector('.heightmap');
