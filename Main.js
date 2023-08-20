@@ -63,7 +63,7 @@ function generateHeight(x, y) {
   return (height + 1) / 2;
 }
 
-function generateGradient(x, y, width, height) {
+function generateGradient(x, y, width, height, strength = 3) {
   const centerX = width / 2;
   const centerY = height / 2;
   
@@ -71,19 +71,21 @@ function generateGradient(x, y, width, height) {
   const distanceX = Math.abs(x - centerX) / centerX;
   const distanceY = Math.abs(y - centerY) / centerY;
 
-  // Use the maximum value for the gradient
-  const gradientValue = Math.max(distanceX, distanceY);
+  // Uses the maximum value for the gradient
+  let gradientValue = Math.max(distanceX, distanceY);
+
+  // Adjust gradient value based on the strength
+  gradientValue = Math.pow(gradientValue, strength);
 
   return gradientValue;
 }
 
-
-function generateSquareGradient(canvas, ctx) {
+function generateSquareGradient(canvas, ctx, strength) {
   const width = canvas.width;
   const height = canvas.height;
   for (let x = 0; x < width; x++) {
     for (let y = 0; y < height; y++) {
-      const gradientValue = generateGradient(x, y, width, height);
+      const gradientValue = generateGradient(x, y, width, height, strength);
       const value = Math.floor(gradientValue * 255);
       const color = `rgb(${value},${value},${value})`;
       ctx.fillStyle = color;
@@ -91,6 +93,7 @@ function generateSquareGradient(canvas, ctx) {
     }
   }
 }
+
 
 function getBiomeColor(height, moisture) {
   const deepWaterThreshold = 0.3;  // Increased to 0.2
