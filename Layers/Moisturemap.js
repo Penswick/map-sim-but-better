@@ -1,74 +1,41 @@
 import { createNoise2D } from 'simplex-noise';
 
-// Set up the Simplex noise generator
+// Set up the Simplex noise generator for moisture
 let noise2D = createNoise2D(Math.random);
-
-// Default values for frequency
-let frequency = 0.003;
-
-// Number of octaves
-let octaves = 10;
 
 // Generate the moisture map
 function generateMoistureMap(canvas, ctx) {
-  // Reinitialize the Simplex noise generator with a new random seed
-  noise2D = createNoise2D(Math.random);
-
   // Get the actual dimensions of the canvas
-  const canvasWidth = canvas.width;
-  const canvasHeight = canvas.height;
-
-  // Create ImageData for optimized drawing
-  const moisturemapImageData = ctx.createImageData(canvasWidth, canvasHeight);
+  const width = canvas.width;
+  const height = canvas.height;
   
-  // Generate the moisture map
-  for (let x = 0; x < canvasWidth; x++) {
-    for (let y = 0; y < canvasHeight; y++) {
-      // Calculate the moisture based on Simplex noise
-      const moisture = generateMoisture(x, y);
-
-      // Set the color based on the moisture value
-      const color = getColor(moisture);
-      const [r, g, b] = color.match(/\d+/g).map(Number);  // Extract RGB values
-
-      const index = (y * canvasWidth + x) * 4;
-      moisturemapImageData.data[index] = r;
-      moisturemapImageData.data[index + 1] = g;
-      moisturemapImageData.data[index + 2] = b;
-      moisturemapImageData.data[index + 3] = 255; // alpha channel, fully opaque
+  for (let x = 0; x < width; x++) {
+    for (let y = 0; y < height; y++) {
+      // Calculate the moisture value
+      const moisture = getMoistureValue(x, y);
+      
+      // Map the moisture value to a grayscale color
+      const value = Math.floor(moisture * 255);
+      const color = `rgb(${value},${value},${value})`;
+      
+      // Draw a pixel on the canvas
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, 1, 1);
     }
   }
-
-  // Draw the entire ImageData to the canvas
-  ctx.putImageData(moisturemapImageData, 0, 0);
 }
 
-// Generate the moisture value for a given position
-function generateMoisture(x, y) {
-  // Generate the moisture value based on Simplex noise with multiple octaves
+function getMoistureValue(x, y) {
+  const moistureFrequency = 0.006;  // Adjust this value to change the size of moisture patterns
+  const moistureOctaves = 10;  // Adjust this value to change the number of detail layers in the moisture map
+  
   let moisture = 0;
   let amplitude = 1;
-  for (let i = 0; i < octaves; i++) {
-    moisture += amplitude * noise2D(x * frequency * Math.pow(2, i), y * frequency * Math.pow(2, i));
+  for (let i = 0; i < moistureOctaves; i++) {
+    moisture += amplitude * noise2D(x * moistureFrequency * Math.pow(2, i), y * moistureFrequency * Math.pow(2, i));
     amplitude /= 2;
   }
-  return moisture;
-}
-
-// Get the color based on the moisture value
-function getColor(moisture) {
-  const value = Math.floor((moisture + 1) / 2 * 255);
-  return `rgb(${value},${value},${value})`;
-}
-
-function getMoistureValue(x, y, width, height) {
-  const noiseFunction = createNoise2D(Math.random);  
-  const frequency = 5.0;
-  const amplitude = 1.0;
-  let noiseValue = noiseFunction(x * frequency / width, y * frequency / height);
-  noiseValue = (noiseValue + 1) * 0.5;
-  noiseValue *= amplitude;
-  return Math.min(Math.max(noiseValue, 0), 1);
+  return (moisture + 1) / 2;  // Normalizing the moisture to be between 0 and 1
 }
 
 export { generateMoistureMap, getMoistureValue };

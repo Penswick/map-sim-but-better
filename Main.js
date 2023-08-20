@@ -67,8 +67,8 @@ function generateTerrain() {
       height = Math.max(height, -1); // Ensure the height stays in the range [-1, 1]
 
       // Map the height value to a grayscale color
-      const value = Math.floor((height + 1) / 2 * 255);
-      const color = `rgb(${value},${value},${value})`;
+      const moisture = getMoistureValue(x, y, canvasWidth, canvasHeight);
+      const color = getBiomeColor(height, moisture);
 
       // Draw a pixel on the heightmap canvas
       heightmapCtx.fillStyle = color;
@@ -90,7 +90,7 @@ function generateHeight(x, y) {
     height += amplitude * noise2D(x * frequency * Math.pow(2, i), y * frequency * Math.pow(2, i));
     amplitude /= 2;
   }
-  return height;
+  return (height + 1) / 2;  // Normalizing the height to be between 0 and 1
 }
 
 // Generate a gradient value to ensure the outer edges are faded
@@ -100,7 +100,7 @@ function generateGradient(x, y, width, height) {
 
   const distanceFromCenter = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
   const maxDistance = Math.sqrt(centerX ** 2 + centerY ** 2);
-  const gradientValue = 4 * (distanceFromCenter / maxDistance);  // adjusts strength of gradient
+  const gradientValue = 1.5 * (distanceFromCenter / maxDistance);  // Adjusted gradient factor
   
   return gradientValue;
 }
@@ -118,5 +118,37 @@ function generateSquareGradient(canvas, ctx) {
       ctx.fillStyle = color;
       ctx.fillRect(x, y, 1, 1);
     }
+  }
+}
+
+function getBiomeColor(height, moisture) {
+  // Define thresholds and colors
+  const deepWaterThreshold = 0.2;  // Deep water threshold
+  const shallowWaterThreshold = 0.28;  // Shallow water threshold
+  const beachThreshold = 0.3;
+  const forestMoisture = 0.5;
+  const woodlandsMoisture = 0.2;
+  const lowerMountainThreshold = 0.8;
+
+  if (height < deepWaterThreshold) {
+      return 'rgb(0,63,178)';  // Deep water color
+  } else if (height < shallowWaterThreshold) {
+      return 'rgb(10,82,196)';  // Shallow water color
+  } else if (height < beachThreshold) {
+      return 'rgb(194,175,125,255)';  // Beach color
+  } else if (height < 0.7) {
+      if (moisture > forestMoisture) {
+          return 'rgb(60,98,22,255)';  // Heavy forest color
+      } else if (moisture > woodlandsMoisture) {
+          return 'rgb(90,127,51,255)';  // Woodlands color
+      } else {
+          return 'rgb(117,155,76)';  // Grasslands color
+      }
+    } else if (height < lowerMountainThreshold) {
+      return 'rgb(141,143,124)';  // Darker gray for the lower mountains
+    } else if (height < 0.9) {
+      return 'rgb(170,170,170)';  // lighter gray for the higher mountains
+    } else {
+      return 'rgb(236,236,235)';  // Snow cap 
   }
 }
