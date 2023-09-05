@@ -1,7 +1,6 @@
 import { createNoise2D } from 'simplex-noise';
 import { generateMoistureMap, getMoistureValue } from './Layers/Moisturemap.js';
 
-
 let noise2D = createNoise2D(Math.random);
 
 const heightmapCanvas = document.querySelector('.heightmap');
@@ -33,11 +32,9 @@ function generateTerrain() {
   noise2D = createNoise2D(Math.random);
   const canvasWidth = heightmapCanvas.width;
   const canvasHeight = heightmapCanvas.height;
-
+  
   heightmapCtx.clearRect(0, 0, canvasWidth, canvasHeight);
-  moisturemapCtx.clearRect(0, 0, canvasWidth, canvasHeight);
-  gradientCtx.clearRect(0, 0, canvasWidth, canvasHeight);
-
+  
   for (let x = 0; x < canvasWidth; x++) {
     for (let y = 0; y < canvasHeight; y++) {
       let height = generateHeight(x, y);
@@ -50,9 +47,13 @@ function generateTerrain() {
       heightmapCtx.fillRect(x, y, 1, 1);
     }
   }
+
   generateMoistureMap(moisturemapCanvas, moisturemapCtx);
   generateSquareGradient(gradientCanvas, gradientCtx);
 }
+
+
+
 
 function generateHeight(x, y) {
   let height = 0;
@@ -97,7 +98,7 @@ function generateSquareGradient(canvas, ctx, strength) {
 
 
 function getBiomeColor(height, moisture) {
-  const deepWaterThreshold = 0.3;  // Increased to 0.2
+  const deepWaterThreshold = 0.25;  // Increased to 0.2
   const shallowWaterThreshold = 0.33;  // Increased to 0.3
   const beachThreshold = 0.35;  // Increased to 0.35
   const forestMoisture = 0.5;
