@@ -10,18 +10,19 @@
 <body>
 <div class="Main">
     <div class="canvas-container">
-        <canvas class="mycanvas heightmap" height="800" width="800"></canvas>
-        <canvas class="mycanvas moisturemap" height="800" width="800"></canvas>
-        <canvas class="mycanvas gradient" height="800" width="800"></canvas>
-
-    </div>
-    <div class="controls">
-        <button class="generate">generate</button>
-        <button class="togglemoist">Toggle Moisture overlay</button>
-        <button class="togglegradient">Toggle Gradient overlay</button>
+        <canvas class="mycanvas heightmap"></canvas>
+        <canvas class="mycanvas moisturemap"></canvas>
+        <canvas class="mycanvas gradient"></canvas>
+        <div class="menu">
+            <button class="menu-button">Menu</button>
+            <div class="controls">
+                <button class="generate">Generate</button>
+                <button class="togglemoist">Toggle Moisture overlay</button>
+                <button class="togglegradient">Toggle Gradient overlay</button>
+            </div>
+        </div>
     </div>
 </div>
-    <p id="map-type"></p>
-    <script src="bundle.js"></script>
+<script src="bundle.js"></script>
 </body>
 </html>

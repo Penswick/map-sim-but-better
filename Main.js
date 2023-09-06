@@ -1,6 +1,7 @@
 import { createNoise2D } from 'simplex-noise';
 import { generateMoistureMap, getMoistureValue } from './Layers/Moisturemap.js';
 
+
 let noise2D = createNoise2D(Math.random);
 
 const heightmapCanvas = document.querySelector('.heightmap');
@@ -15,6 +16,11 @@ const gradientCtx = gradientCanvas.getContext('2d');
 let frequency = 0.003;
 let octaves = 10;
 
+// TODO: Remove later when moist map + grad are hidden completely.
+moisturemapCanvas.style.display = 'none';
+gradientCanvas.style.display = 'none';
+
+
 const generateButton = document.querySelector('.generate');
 generateButton.addEventListener('click', generateTerrain);
 
@@ -26,6 +32,23 @@ toggleMoistButton.addEventListener('click', () => {
 const toggleGradientButton = document.querySelector('.togglegradient');
 toggleGradientButton.addEventListener('click', () => {
   gradientCanvas.style.display = gradientCanvas.style.display === 'none' ? 'block' : 'none';
+});
+
+function updateCanvasSize(canvas) {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+updateCanvasSize(heightmapCanvas);
+updateCanvasSize(moisturemapCanvas);
+updateCanvasSize(gradientCanvas);
+
+// Update the canvas size whenever the window is resized
+window.addEventListener('resize', () => {
+  updateCanvasSize(heightmapCanvas);
+  updateCanvasSize(moisturemapCanvas);
+  updateCanvasSize(gradientCanvas);
+  generateTerrain();  // re-generate the terrain to fit new size
 });
 
 function generateTerrain() {
@@ -127,3 +150,11 @@ function getBiomeColor(height, moisture) {
       return 'rgb(236,236,235)';  // Snow cap 
   }
 }
+
+// Menu buttons
+const menuButton = document.querySelector('.menu-button');
+const controls = document.querySelector('.controls');
+
+menuButton.addEventListener('click', () => {
+  controls.classList.toggle('show');
+});

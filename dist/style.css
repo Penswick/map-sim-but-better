@@ -1,35 +1,75 @@
 body {
   background-color: grey;
+  margin: 0;
+  overflow: hidden;
 }
 
 .Main {
   display: flex;
   justify-content: center;
   align-items: center;
-  /* border: 5px solid red; */
   flex-direction: column;
+  height: 100vh;
+  width: 100vw;
 }
 
 .canvas-container {
-  /* background-color: rgb(1, 61, 34); */
-  height: 800px;
-  width: 800px;
+  position: relative;
+  height: 100%;
+  width: 100%;
 }
 
-.Controls {
+.mycanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+}
+
+.menu {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+}
+
+.menu-button {
+  background-color: rgba(255, 255, 255, 0.7);
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.controls {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  background-color: rgba(255, 255, 255, 0.9);  /* More solid background */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.controls.show {
   display: flex;
-  margin: 10px;
+}
+
+
+.menu-button:hover + .controls, .controls:hover {
+  display: flex;
 }
 
 button {
-  background-color: #4CAF50; /* Green */
+  background-color: #4CAF50;
   border: none;
   color: white;
-  padding: 15px 32px;
+  padding: 8px 16px;
   text-align: center;
-  text-decoration: none;
-  display: inline-block;
   font-size: 16px;
-  margin: 4px 2px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #45a049;
 }
