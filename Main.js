@@ -1,5 +1,6 @@
 import { createNoise2D } from 'simplex-noise';
-import { generateMoistureMap, getMoistureValue } from './Layers/Moisturemap.js';
+import { generateMoistureMap, getMoistureValue } from './Moisturemap.js';
+import { generateRivers } from './Layers/Rivers.js';
 
 
 let noise2D = createNoise2D(Math.random);
@@ -58,6 +59,7 @@ function generateTerrain() {
   
   heightmapCtx.clearRect(0, 0, canvasWidth, canvasHeight);
   
+  // Generate height map
   for (let x = 0; x < canvasWidth; x++) {
     for (let y = 0; y < canvasHeight; y++) {
       let height = generateHeight(x, y);
@@ -71,9 +73,17 @@ function generateTerrain() {
     }
   }
 
+  // Generate other map layers
   generateMoistureMap(moisturemapCanvas, moisturemapCtx);
   generateSquareGradient(gradientCanvas, gradientCtx);
+
+  // Generate rivers
+  const numRivers = Math.floor(Math.random() * 6) + 10;  // Random number between 10 and 15
+  for (let i = 0; i < numRivers; i++) {
+    generateRivers(heightmapCtx, canvasWidth, canvasHeight);
+  }
 }
+
 
 
 
