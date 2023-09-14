@@ -11,13 +11,15 @@ function setPixelColor(ctx, x, y, color) {
 function findHighPoints(heightmapCtx, canvasWidth, canvasHeight, numPoints) {
   const highPoints = [];
   const snowColor = 'rgb(236,236,235)'; // Snowy areas
+  const heightThreshold = 0.7 * 255 * 3; // Adjusted based on lowerMountainThreshold in getBiomeColor
 
   while (highPoints.length < numPoints) {
     const x = Math.floor(Math.random() * canvasWidth);
     const y = Math.floor(Math.random() * canvasHeight);
     const color = getPixelColor(heightmapCtx, x, y);
+    const value = getColorValue(color);
 
-    if (color === snowColor) {
+    if (value > heightThreshold || color === snowColor) {
       highPoints.push({ x, y });
     }
   }
@@ -31,8 +33,9 @@ function getColorValue(color) {
 }
 
 function generateRivers(heightmapCtx, canvasWidth, canvasHeight) {
-  const maxSteps = 100; 
-  const riverColor = "rgb(255, 0, 47)";
+  const maxSteps = 100;
+  const riverColor = 'rgb(10,82,196)';
+
   const highPoints = findHighPoints(heightmapCtx, canvasWidth, canvasHeight, 1);
   let currentX = highPoints[0].x;
   let currentY = highPoints[0].y;
@@ -65,26 +68,22 @@ function generateRivers(heightmapCtx, canvasWidth, canvasHeight) {
     }
 
     if (candidatePoints.length === 0) {
-      break; // If no lower points are found, stop generating the river
+      break;
     }
 
-    // Add some randomness for more natural rivers 0.05 = 5% chance of picking a different path instead of just the lowest elevation
-    if (Math.random() < 0.05) {
-      candidatePoints.sort((a, b) => a.value - b.value);
-    } else {
-      candidatePoints = candidatePoints.sort(() => Math.random() - 0.5);
-    }
+    // Sort the candidates by height first
+    candidatePoints.sort((a, b) => a.value - b.value);
 
-    const lowestPoint = candidatePoints[0];
-    currentX = lowestPoint.x;
-    currentY = lowestPoint.y;
-    currentValue = lowestPoint.value;
+    // Pick one of the lowest three points with a random chance
+    const numLowestPoints = Math.min(3, candidatePoints.length);
+    const randomIndex = Math.floor(Math.random() * numLowestPoints);
+    
+    const selectedPoint = candidatePoints[randomIndex];
+    currentX = selectedPoint.x;
+    currentY = selectedPoint.y;
+    currentValue = selectedPoint.value;
   }
 }
-
-
-
-
 
 
 export { generateRivers };

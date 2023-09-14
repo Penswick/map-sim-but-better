@@ -84,10 +84,6 @@ function generateTerrain() {
   }
 }
 
-
-
-
-
 function generateHeight(x, y) {
   let height = 0;
   let amplitude = 1;
