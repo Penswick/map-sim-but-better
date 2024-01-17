@@ -17,6 +17,7 @@ const gradientCtx = gradientCanvas.getContext('2d');
 let frequency = 0.003;
 let octaves = 10;
 
+
 // TODO: Remove later when moist map + grad are hidden completely.
 moisturemapCanvas.style.display = 'none';
 gradientCanvas.style.display = 'none';
@@ -40,19 +41,12 @@ function updateCanvasSize(canvas) {
   canvas.height = window.innerHeight;
 }
 
-updateCanvasSize(heightmapCanvas);
-updateCanvasSize(moisturemapCanvas);
-updateCanvasSize(gradientCanvas);
-
-// Update the canvas size whenever the window is resized
-window.addEventListener('resize', () => {
+function generateTerrain() {
+  // Update the canvas size before generating the terrain
   updateCanvasSize(heightmapCanvas);
   updateCanvasSize(moisturemapCanvas);
   updateCanvasSize(gradientCanvas);
-  generateTerrain();  // re-generate the terrain to fit new size
-});
 
-function generateTerrain() {
   noise2D = createNoise2D(Math.random);
   const canvasWidth = heightmapCanvas.width;
   const canvasHeight = heightmapCanvas.height;
@@ -77,12 +71,14 @@ function generateTerrain() {
   generateMoistureMap(moisturemapCanvas, moisturemapCtx);
   generateSquareGradient(gradientCanvas, gradientCtx);
 
-  // Generate rivers
+    // Generate rivers
   const numRivers = Math.floor(Math.random() * 6) + 10;  // Random number between 10 and 15
   for (let i = 0; i < numRivers; i++) {
     generateRivers(heightmapCtx, canvasWidth, canvasHeight);
   }
 }
+
+
 
 function generateHeight(x, y) {
   let height = 0;
@@ -127,34 +123,17 @@ function generateSquareGradient(canvas, ctx, strength) {
 
 
 function getBiomeColor(height, moisture) {
-  const deepWaterThreshold = 0.25;  // Increased to 0.2
-  const shallowWaterThreshold = 0.33;  // Increased to 0.3
-  const beachThreshold = 0.35;  // Increased to 0.35
-  const forestMoisture = 0.5;
-  const woodlandsMoisture = 0.2;
-  const lowerMountainThreshold = 0.8;
+  const biomes = [
+    { threshold: 0.25, color: 'rgb(0,63,178)' }, // Deep water
+    { threshold: 0.33, color: 'rgb(10,82,196)' }, // Shallow water
+    { threshold: 0.35, color: 'rgb(194,175,125,255)' }, // Beach
+    { threshold: 0.7, color: (moisture > 0.5) ? 'rgb(60,98,22,255)' : (moisture > 0.2) ? 'rgb(90,127,51,255)' : 'rgb(117,155,76)' }, // Forest, Woodlands, Grasslands
+    { threshold: 0.8, color: 'rgb(141,143,124)' }, // Lower mountains
+    { threshold: 0.9, color: 'rgb(170,170,170)' }, // Higher mountains
+    { threshold: Infinity, color: 'rgb(236,236,235)' } // Snow cap
+  ];
 
-  if (height < deepWaterThreshold) {
-      return 'rgb(0,63,178)';  // Deep water color
-  } else if (height < shallowWaterThreshold) {
-      return 'rgb(10,82,196)';  // Shallow water color
-  } else if (height < beachThreshold) {
-      return 'rgb(194,175,125,255)';  // Beach color
-  } else if (height < 0.7) {
-      if (moisture > forestMoisture) {
-          return 'rgb(60,98,22,255)';  // Heavy forest color
-      } else if (moisture > woodlandsMoisture) {
-          return 'rgb(90,127,51,255)';  // Woodlands color
-      } else {
-          return 'rgb(117,155,76)';  // Grasslands color
-      }
-    } else if (height < lowerMountainThreshold) {
-      return 'rgb(141,143,124)';  // Darker gray for the lower mountains
-    } else if (height < 0.9) {
-      return 'rgb(170,170,170)';  // lighter gray for the higher mountains
-    } else {
-      return 'rgb(236,236,235)';  // Snow cap 
-  }
+  return biomes.find(biome => height < biome.threshold).color;
 }
 
 // Menu buttons

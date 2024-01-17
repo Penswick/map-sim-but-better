@@ -35,16 +35,23 @@ function getColorValue(color) {
 function generateRivers(heightmapCtx, canvasWidth, canvasHeight) {
   const maxSteps = 100;
   const riverColor = 'rgb(10,82,196)';
+  const startPointColor = 'rgb(255,0,0)'; // Color for the starting point
 
   const highPoints = findHighPoints(heightmapCtx, canvasWidth, canvasHeight, 1);
   let currentX = highPoints[0].x;
   let currentY = highPoints[0].y;
   let currentValue = getColorValue(getPixelColor(heightmapCtx, currentX, currentY));
 
+  // Set the starting point of the river to red
+  setPixelColor(heightmapCtx, currentX, currentY, startPointColor);
+
   const visitedPoints = new Set();
 
   for (let step = 0; step < maxSteps; step++) {
-    setPixelColor(heightmapCtx, currentX, currentY, riverColor);
+    // Skip coloring the starting point
+    if (step !== 0) {
+      setPixelColor(heightmapCtx, currentX, currentY, riverColor);
+    }
     visitedPoints.add(`${currentX},${currentY}`);
 
     let candidatePoints = [];
@@ -71,19 +78,17 @@ function generateRivers(heightmapCtx, canvasWidth, canvasHeight) {
       break;
     }
 
-    // Sort the candidates by height first
-    candidatePoints.sort((a, b) => a.value - b.value);
-
-    // Pick one of the lowest three points with a random chance
-    const numLowestPoints = Math.min(3, candidatePoints.length);
-    const randomIndex = Math.floor(Math.random() * numLowestPoints);
-    
+    // Pick a candidate point randomly from all the available options
+    const randomIndex = Math.floor(Math.random() * candidatePoints.length);
     const selectedPoint = candidatePoints[randomIndex];
     currentX = selectedPoint.x;
     currentY = selectedPoint.y;
     currentValue = selectedPoint.value;
   }
 }
+
+
+
 
 
 export { generateRivers };
