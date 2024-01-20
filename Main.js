@@ -1,9 +1,6 @@
+import seedrandom from 'seedrandom';
 import { createNoise2D } from 'simplex-noise';
-import { generateMoistureMap, getMoistureValue } from './Moisturemap.js';
-import { generateRivers } from './Layers/Rivers.js';
-
-
-let noise2D = createNoise2D(Math.random);
+import { generateMoistureMap, getMoistureValue } from './Controllers/Moisturemap.js';
 
 const heightmapCanvas = document.querySelector('.heightmap');
 const heightmapCtx = heightmapCanvas.getContext('2d');
@@ -13,18 +10,26 @@ const gradientCanvas = document.querySelector('.gradient');
 gradientCanvas.width = heightmapCanvas.width;
 gradientCanvas.height = heightmapCanvas.height;
 const gradientCtx = gradientCanvas.getContext('2d');
+const generateButton = document.querySelector('.generate');
+const generateRandomButton = document.querySelector('.generateRandom');
+const seedInput = document.querySelector('#seedInput');
 
 let frequency = 0.003;
 let octaves = 10;
-
 
 // TODO: Remove later when moist map + grad are hidden completely.
 moisturemapCanvas.style.display = 'none';
 gradientCanvas.style.display = 'none';
 
+window.addEventListener('load', () => {
+  const initialSize = canvasSizeSelect.value;
+  updateCanvasSize(heightmapCanvas, initialSize);
+  updateCanvasSize(moisturemapCanvas, initialSize);
+  updateCanvasSize(gradientCanvas, initialSize);
+});
 
-const generateButton = document.querySelector('.generate');
-generateButton.addEventListener('click', generateTerrain);
+generateButton.addEventListener('click', () => generateTerrain(seedInput.value));
+generateRandomButton.addEventListener('click', () => generateTerrain());
 
 const toggleMoistButton = document.querySelector('.togglemoist');
 toggleMoistButton.addEventListener('click', () => {
@@ -36,18 +41,45 @@ toggleGradientButton.addEventListener('click', () => {
   gradientCanvas.style.display = gradientCanvas.style.display === 'none' ? 'block' : 'none';
 });
 
-function updateCanvasSize(canvas) {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+
+function updateCanvasSize(canvas, size) {
+  switch(size) {
+    case 'small':
+      canvas.width = 500;
+      canvas.height = 500;
+      break;
+    case 'medium':
+      canvas.width = 1000;
+      canvas.height = 1000;
+      break;
+    case 'large':
+      canvas.width = 1500;
+      canvas.height = 1500;
+      break;
+    case 'extraLarge':
+      canvas.width = 4096;
+      canvas.height = 2160;
+      break;
+    default:
+      console.error(`Invalid size: ${size}`);
+  }
 }
 
-function generateTerrain() {
+function generateTerrain(seed) {
+  if (!seed) {
+    seed = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  }
+  console.log(`Seed: ${seed}`); 
+  seedInput.value = seed; 
+
+  const rng = seedrandom(seed);
+  const noise2D = createNoise2D(rng); // Re-create noise2D with the seed-based RNG
+
   // Update the canvas size before generating the terrain
   updateCanvasSize(heightmapCanvas);
   updateCanvasSize(moisturemapCanvas);
   updateCanvasSize(gradientCanvas);
 
-  noise2D = createNoise2D(Math.random);
   const canvasWidth = heightmapCanvas.width;
   const canvasHeight = heightmapCanvas.height;
   
@@ -56,11 +88,11 @@ function generateTerrain() {
   // Generate height map
   for (let x = 0; x < canvasWidth; x++) {
     for (let y = 0; y < canvasHeight; y++) {
-      let height = generateHeight(x, y);
+      let height = generateHeight(x, y, noise2D); 
       const gradientValue = generateGradient(x, y, canvasWidth, canvasHeight);
       height -= gradientValue;
       height = Math.max(height, -1);
-      const moisture = getMoistureValue(x, y, canvasWidth, canvasHeight);
+      const moisture = getMoistureValue(x, y, noise2D);
       const color = getBiomeColor(height, moisture);
       heightmapCtx.fillStyle = color;
       heightmapCtx.fillRect(x, y, 1, 1);
@@ -68,19 +100,11 @@ function generateTerrain() {
   }
 
   // Generate other map layers
-  generateMoistureMap(moisturemapCanvas, moisturemapCtx);
+  generateMoistureMap(moisturemapCanvas, moisturemapCtx, seed);
   generateSquareGradient(gradientCanvas, gradientCtx);
-
-    // Generate rivers
-  const numRivers = Math.floor(Math.random() * 6) + 10;  // Random number between 10 and 15
-  for (let i = 0; i < numRivers; i++) {
-    generateRivers(heightmapCtx, canvasWidth, canvasHeight);
-  }
 }
 
-
-
-function generateHeight(x, y) {
+function generateHeight(x, y, noise2D) { 
   let height = 0;
   let amplitude = 1;
   for (let i = 0; i < octaves; i++) {
@@ -88,6 +112,7 @@ function generateHeight(x, y) {
     amplitude /= 2;
   }
   return (height + 1) / 2;
+  
 }
 
 function generateGradient(x, y, width, height, strength = 3) {
@@ -121,7 +146,6 @@ function generateSquareGradient(canvas, ctx, strength) {
   }
 }
 
-
 function getBiomeColor(height, moisture) {
   const biomes = [
     { threshold: 0.25, color: 'rgb(0,63,178)' }, // Deep water
@@ -142,4 +166,13 @@ const controls = document.querySelector('.controls');
 
 menuButton.addEventListener('click', () => {
   controls.classList.toggle('show');
+});
+
+const canvasSizeSelect = document.querySelector('#canvasSize');
+
+canvasSizeSelect.addEventListener('change', () => {
+  const size = canvasSizeSelect.value;
+  updateCanvasSize(heightmapCanvas, size);
+  updateCanvasSize(moisturemapCanvas, size);
+  updateCanvasSize(gradientCanvas, size);
 });

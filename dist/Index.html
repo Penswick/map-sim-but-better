@@ -17,9 +17,17 @@
         <div class="menu">
             <button class="menu-button">Menu</button>
             <div class="controls">
-                <button class="generate">Generate</button>
+                <input type="text" id="seedInput" placeholder="Enter seed here">
+                <button class="generate">Generate with Seed</button>
+                <button class="generateRandom">Generate Random</button>
                 <button class="togglemoist">Toggle Moisture overlay</button>
                 <button class="togglegradient">Toggle Gradient overlay</button>
+                <select id="canvasSize">
+                    <option value="small">Small</option>
+                    <option value="medium">Medium</option>
+                    <option value="large">Large</option>
+                    <option value="extraLarge">4k</option>
+                  </select>
             </div>
         </div>
     </div>
