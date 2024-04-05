@@ -15,16 +15,22 @@ body {
 
 .canvas-container {
   position: relative;
-  height: 100%;
-  width: 100%;
-}
-
-.mycanvas {
-  position: absolute;
-  top: 0;
-  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 100vh;
   width: 100vw;
+}
+
+.canvas-container canvas {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.mycanvas-moisturemap, .mycanvas-gradient {
+  display: none;
 }
 
 .menu {

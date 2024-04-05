@@ -1,6 +1,7 @@
 import seedrandom from 'seedrandom';
 import { createNoise2D } from 'simplex-noise';
 import { generateMoistureMap, getMoistureValue } from './Controllers/Moisturemap.js';
+import { generateGradient, generateSquareGradient } from './Controllers/Gradient.js';
 
 const heightmapCanvas = document.querySelector('.heightmap');
 const heightmapCtx = heightmapCanvas.getContext('2d');
@@ -17,7 +18,6 @@ const seedInput = document.querySelector('#seedInput');
 let frequency = 0.003;
 let octaves = 10;
 
-// TODO: Remove later when moist map + grad are hidden completely.
 moisturemapCanvas.style.display = 'none';
 gradientCanvas.style.display = 'none';
 
@@ -40,7 +40,6 @@ const toggleGradientButton = document.querySelector('.togglegradient');
 toggleGradientButton.addEventListener('click', () => {
   gradientCanvas.style.display = gradientCanvas.style.display === 'none' ? 'block' : 'none';
 });
-
 
 function updateCanvasSize(canvas, size) {
   switch(size) {
@@ -73,9 +72,8 @@ function generateTerrain(seed) {
   seedInput.value = seed; 
 
   const rng = seedrandom(seed);
-  const noise2D = createNoise2D(rng); // Re-create noise2D with the seed-based RNG
+  const noise2D = createNoise2D(rng);
 
-  // Update the canvas size before generating the terrain
   updateCanvasSize(heightmapCanvas);
   updateCanvasSize(moisturemapCanvas);
   updateCanvasSize(gradientCanvas);
@@ -85,7 +83,6 @@ function generateTerrain(seed) {
   
   heightmapCtx.clearRect(0, 0, canvasWidth, canvasHeight);
   
-  // Generate height map
   for (let x = 0; x < canvasWidth; x++) {
     for (let y = 0; y < canvasHeight; y++) {
       let height = generateHeight(x, y, noise2D); 
@@ -99,7 +96,6 @@ function generateTerrain(seed) {
     }
   }
 
-  // Generate other map layers
   generateMoistureMap(moisturemapCanvas, moisturemapCtx, seed);
   generateSquareGradient(gradientCanvas, gradientCtx);
 }
@@ -112,55 +108,22 @@ function generateHeight(x, y, noise2D) {
     amplitude /= 2;
   }
   return (height + 1) / 2;
-  
-}
-
-function generateGradient(x, y, width, height, strength = 3) {
-  const centerX = width / 2;
-  const centerY = height / 2;
-  
-  // Calculate distance from center on X and Y axis separately
-  const distanceX = Math.abs(x - centerX) / centerX;
-  const distanceY = Math.abs(y - centerY) / centerY;
-
-  // Uses the maximum value for the gradient
-  let gradientValue = Math.max(distanceX, distanceY);
-
-  // Adjust gradient value based on the strength
-  gradientValue = Math.pow(gradientValue, strength);
-
-  return gradientValue;
-}
-
-function generateSquareGradient(canvas, ctx, strength) {
-  const width = canvas.width;
-  const height = canvas.height;
-  for (let x = 0; x < width; x++) {
-    for (let y = 0; y < height; y++) {
-      const gradientValue = generateGradient(x, y, width, height, strength);
-      const value = Math.floor(gradientValue * 255);
-      const color = `rgb(${value},${value},${value})`;
-      ctx.fillStyle = color;
-      ctx.fillRect(x, y, 1, 1);
-    }
-  }
 }
 
 function getBiomeColor(height, moisture) {
   const biomes = [
-    { threshold: 0.25, color: 'rgb(0,63,178)' }, // Deep water
-    { threshold: 0.33, color: 'rgb(10,82,196)' }, // Shallow water
-    { threshold: 0.35, color: 'rgb(194,175,125,255)' }, // Beach
-    { threshold: 0.7, color: (moisture > 0.5) ? 'rgb(60,98,22,255)' : (moisture > 0.2) ? 'rgb(90,127,51,255)' : 'rgb(117,155,76)' }, // Forest, Woodlands, Grasslands
-    { threshold: 0.8, color: 'rgb(141,143,124)' }, // Lower mountains
-    { threshold: 0.9, color: 'rgb(170,170,170)' }, // Higher mountains
-    { threshold: Infinity, color: 'rgb(236,236,235)' } // Snow cap
+    { threshold: 0.25, color: 'rgb(0,63,178)' },
+    { threshold: 0.33, color: 'rgb(10,82,196)' },
+    { threshold: 0.35, color: 'rgb(194,175,125,255)' },
+    { threshold: 0.7, color: (moisture > 0.5) ? 'rgb(60,98,22,255)' : (moisture > 0.2) ? 'rgb(90,127,51,255)' : 'rgb(117,155,76)' },
+    { threshold: 0.8, color: 'rgb(141,143,124)' },
+    { threshold: 0.9, color: 'rgb(170,170,170)' },
+    { threshold: Infinity, color: 'rgb(236,236,235)' }
   ];
 
   return biomes.find(biome => height < biome.threshold).color;
 }
 
-// Menu buttons
 const menuButton = document.querySelector('.menu-button');
 const controls = document.querySelector('.controls');
 
